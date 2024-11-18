@@ -9,6 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/wanomir/hh-reporter/internal/infrastructure/repository"
 	"github.com/wanomir/hh-reporter/pkg/psql"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -51,7 +52,8 @@ func (a *App) Run() (exitCode int) {
 	go func() {
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
-
+		// TODO: move updates chanel creation outside running goroutine
+		//		 so it will be placed next to `StopReceivingUpdates()`
 		updates := a.bot.GetUpdatesChan(u)
 
 		for {
@@ -97,7 +99,7 @@ func (a *App) init() (err error) {
 	a.logger = logger.NewLogger(a.config.Log.Level)
 
 	// database
-	_, err = psql.Connect(a.ctx,
+	pool, err := psql.Connect(a.ctx,
 		psql.WithHost(a.config.PG.Host),
 		psql.WithDatabase(a.config.PG.Database),
 		psql.WithUser(a.config.PG.User),
@@ -110,6 +112,8 @@ func (a *App) init() (err error) {
 	if err != nil {
 		return e.Wrap("failed to init db", err)
 	}
+
+	_ = repository.NewPostgresDB(pool)
 
 	// telegram service
 	if a.bot, err = tgbotapi.NewBotAPI(a.config.Token); err != nil {
