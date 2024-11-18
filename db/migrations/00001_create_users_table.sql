@@ -1,14 +1,12 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    telegram_id INTEGER,
+    telegram_id INTEGER PRIMARY KEY,
     telegram_chat_id INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS vacancies (
-    id SERIAL PRIMARY KEY,
-    vacancy_id INTEGER,
+    vacancy_id INTEGER PRIMARY KEY,
     vacancy_name VARCHAR(255),
     role_id INTEGER,
     experience VARCHAR(63),
@@ -17,8 +15,7 @@ CREATE TABLE IF NOT EXISTS vacancies (
 );
 
 CREATE TABLE IF NOT EXISTS roles (
-    id SERIAL PRIMARY KEY,
-    role_id INTEGER,
+    role_id INTEGER PRIMARY KEY,
     role_name VARCHAR(255)
 );
 -- +goose StatementEnd
