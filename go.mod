@@ -7,6 +7,7 @@ require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/pressly/goose/v3 v3.22.1
+	github.com/wanomir/e v1.0.0
 	go.uber.org/zap v1.27.0
 )
 
