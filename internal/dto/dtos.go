@@ -9,7 +9,7 @@ type User struct {
 
 type Vacancy struct {
 	VacancyId    int       `db:"vacancy_id,int"`
-	VacancyName  int       `db:"vacancy_name"`
+	VacancyName  string    `db:"vacancy_name"`
 	RoleId       int       `db:"role_id,int"`
 	Experience   string    `db:"experience"`
 	Url          string    `db:"url"`

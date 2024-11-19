@@ -115,28 +115,6 @@ func (a *App) init() (err error) {
 
 	_ = repository.NewPostgresDB(pool)
 
-	// for i := 0; i < 5; i++ {
-	// 	if err := db.InsertUser(a.ctx, i, i+1); err != nil {
-	// 		a.logger.Error("error inserting user", zap.Error(err))
-	// 	}
-	// }
-
-	// for i := 0; i < 5; i++ {
-	// 	chatId, err := db.GetChatIdByTelegramId(a.ctx, i)
-	// 	if err != nil {
-	// 		a.logger.Error("error getting chat id", zap.Error(err))
-	// 	}
-	// 	a.logger.Info("query result", zap.Int("chat id", chatId))
-	// }
-
-	// for i := 0; i < 5; i++ {
-	// 	tgId, err := db.GetTelegramIdByChatId(a.ctx, i)
-	// 	if err != nil {
-	// 		a.logger.Error("error getting tg id", zap.Error(err))
-	// 	}
-	// 	a.logger.Info("query result", zap.Int("tg id", tgId))
-	// }
-
 	// telegram service
 	if a.bot, err = tgbotapi.NewBotAPI(a.config.Token); err != nil {
 		return e.Wrap("failed to init telegram", err)
