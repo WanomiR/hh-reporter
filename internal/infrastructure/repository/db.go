@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var errNoRows = errors.New("no rows in result set")
+var errNoRows = errors.New("no rows found")
 
 type PostgresDB struct {
 	conn    *pgxpool.Pool

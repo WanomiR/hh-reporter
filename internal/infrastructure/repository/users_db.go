@@ -4,44 +4,49 @@ import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx"
-	"github.com/wanomir/hh-reporter/pkg/e"
+	"github.com/jackc/pgx/v5"
+	"github.com/wanomir/e"
 )
 
-func (db *PostgresDB) InsertUser(ctx context.Context, tgId, tgChatId int) (userId int, err error) {
-	query := `INSERT INTO users (telegram_id, telegram_chat_id) VALUES($1, $2) RETURNING id;`
+func (db *PostgresDB) InsertUser(ctx context.Context, tgId, tgChatId int) (err error) {
+	query := `INSERT INTO users (telegram_id, telegram_chat_id)
+	VALUES ($1, $2)
+	ON CONFLICT (telegram_id)
+	DO
+	UPDATE
+	SET telegram_chat_id = $2;`
 
-	if err = db.conn.QueryRow(ctx, query, tgId, tgChatId).Scan(&userId); err != nil {
-		return 0, e.Wrap("failed to execute insert user query", err)
+	if err = db.conn.QueryRow(ctx, query, tgId, tgChatId).Scan(); err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return e.Wrap("failed to execute 'insert user'", err)
 	}
 
-	return userId, nil
+	return nil
 }
 
-func (db *PostgresDB) GetUserByTelegramId(ctx context.Context, tgId int) (userId int, err error) {
-	query := `SELECT id FROM users WHERE telegram_id = $1;`
+func (db *PostgresDB) GetChatIdByTelegramId(ctx context.Context, tgId int) (tgChatId int, err error) {
+	query := `SELECT telegram_chat_id FROM users WHERE telegram_id = $1;`
 
-	if err = db.conn.QueryRow(ctx, query, tgId).Scan(&userId); errors.Is(err, pgx.ErrNoRows) {
+	if err = db.conn.QueryRow(ctx, query, tgId).Scan(&tgChatId); errors.Is(err, pgx.ErrNoRows) {
 		return 0, errNoRows
 	}
 
 	if err != nil {
-		return 0, e.Wrap("failed to query user by telegram id", err)
-	}
-
-	return userId, nil
-}
-
-func (db *PostgresDB) GetTelegramChatIdByUserId(ctx context.Context, userId int) (tgChatId int, err error) {
-	query := `SELECT telegram_chat_id FROM users WHERE id = $1;`
-
-	if err = db.conn.QueryRow(ctx, query, userId).Scan(&tgChatId); errors.Is(err, pgx.ErrNoRows) {
-		return 0, errNoRows
-	}
-
-	if err != nil {
-		return 0, e.Wrap("failed to query telegram chat by user id", err)
+		return 0, e.Wrap("failed to execute 'select chat id by telegram id'", err)
 	}
 
 	return tgChatId, nil
+}
+
+func (db *PostgresDB) GetTelegramIdByChatId(ctx context.Context, tgChatId int) (tgId int, err error) {
+	query := `SELECT telegram_id FROM users WHERE telegram_chat_id = $1`
+
+	if err = db.conn.QueryRow(ctx, query, tgChatId).Scan(&tgId); errors.Is(err, pgx.ErrNoRows) {
+		return 0, errNoRows
+	}
+
+	if err != nil {
+		return 0, e.Wrap("failed to execute 'select telegram id by chat id'", err)
+	}
+
+	return tgId, nil
 }
